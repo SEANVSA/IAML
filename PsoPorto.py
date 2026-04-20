@@ -7,7 +7,7 @@ def sharpe_ratio(weights, mu, cov, rf=0.05):
 def normalize(x):
     x = np.clip(x, 0, None) # hapus bobot negatif
     return x / x.sum() # normalisasi → sum = 1
-def pso_portfolio(mu, cov, rf=0.05, n_particles=100, n_iter=300):
+def pso_portfolio(mu, cov, rf=0.05, n_particles=100, n_iter=3000):
     n = len(mu)
     # Hyperparameters PSO
     w_max, w_min = 0.9, 0.4  # inertia weight (linear decay)

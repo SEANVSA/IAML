@@ -10,7 +10,7 @@ tickers = [
 data = yf.download(tickers, period='3y', interval= "1mo")['Close']
 data.dropna(inplace=True)
 
-returns = (((data - data.shift(1))/ data.shift(1))*100).dropna()
-mu = returns.mean()
-cov = returns.cov()
-print(cov)
+returns = np.log(data / data.shift(1)).dropna()
+mu = returns.mean() * 252 # Annualized mean return
+cov = returns.cov() * 252 # Annualized covariance matrix
+rf = 0.05 # Risk-free rate 5% p.a.

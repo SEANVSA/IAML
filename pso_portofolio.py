@@ -1,8 +1,5 @@
 import numpy as np
 import yfinance as yf
-import warnings
-warnings.filterwarnings("ignore")
-
 
 top25 = [
         {"name": "Bitcoin",        "symbol": "BTC",   "ticker": "BTC-USD"},
@@ -29,16 +26,16 @@ top25 = [
         {"name": "Fetch",          "symbol": "FET",   "ticker": "FET-USD"},
         {"name": "Stellar",        "symbol": "XLM",   "ticker": "XLM-USD"},
         {"name": "Monero",         "symbol": "XMR",   "ticker": "XMR-USD"},
-        {"name": "Filecoin",       "symbol": "FIL",   "ticker": "FIL-USD"},]
-
-
+        {"name": "Filecoin",       "symbol": "FIL",   "ticker": "FIL-USD"},
+]
 # ─────────────────────────────────────────────
-# 2. DOWNLOAD HISTORICAL DATA VIA YFINANCE
+# 1. DOWNLOAD HISTORICAL DATA VIA YFINANCE
 # ─────────────────────────────────────────────
 
 def load_returns(tickers: list[str], period: str = "3y") -> tuple[np.ndarray, np.ndarray, list[str]]:
 
     raw = yf.download(tickers, period=period, auto_adjust=True, progress=False)["Close"]
+    print(raw)
 
     threshold = int(len(raw) * 0.80)
     raw = raw.dropna(axis=1, thresh=threshold).dropna()
@@ -56,7 +53,7 @@ def load_returns(tickers: list[str], period: str = "3y") -> tuple[np.ndarray, np
 
 
 # ─────────────────────────────────────────────
-# 3. FUNGSI OBJEKTIF CUSTOM — FULL VECTOR
+# 2. FUNGSI OBJEKTIF CUSTOM — FULL VECTOR
 # ─────────────────────────────────────────────
 
 def portfolio_score(w: np.ndarray, mu: np.ndarray, cov: np.ndarray,
@@ -91,7 +88,7 @@ def portfolio_score(w: np.ndarray, mu: np.ndarray, cov: np.ndarray,
 
 
 # ─────────────────────────────────────────────
-# 4. NORMALISASI BOBOT (CONSTRAINT HANDLING)
+# 3. NORMALISASI BOBOT (CONSTRAINT HANDLING)
 # ─────────────────────────────────────────────
 
 def normalize(x: np.ndarray) -> np.ndarray:
@@ -109,7 +106,7 @@ def normalize(x: np.ndarray) -> np.ndarray:
 
 
 # ─────────────────────────────────────────────
-# 5. PSO OPTIMIZER
+# 4. PSO OPTIMIZER
 # ─────────────────────────────────────────────
 
 def pso_portfolio(mu: np.ndarray, cov: np.ndarray,
@@ -214,7 +211,7 @@ def pso_portfolio(mu: np.ndarray, cov: np.ndarray,
 
 
 # ─────────────────────────────────────────────
-# 6. HASIL & ANALISIS
+# 5. HASIL & ANALISIS
 # ─────────────────────────────────────────────
 
 def portfolio_metrics(w: np.ndarray, mu: np.ndarray,
@@ -262,17 +259,17 @@ def print_results(tickers: list[str], weights: np.ndarray,
 
 
 # ─────────────────────────────────────────────
-# 7. MAIN
+# 6. MAIN
 # ─────────────────────────────────────────────
 
 if __name__ == "__main__":
 
-    RF          = 0.00   # risk-free rate 5% p.a.
+    RF          = 0.00   # risk-free rate 0% for crypto
     LAMBDA      = 0.5    # diversification penalty weight
     VERBOSE     = True   # True → print tiap iterasi | False → silent
 
-    # 1. Ambil top 25 coin dari CMC
-    print("[ 1/4 ] Mengambil top 25 coin dari CoinMarketCap...")
+    # 1. Ambil data 25 coin
+    print("[ 1/4 ] Mengambil data 25 coin")
     coins   = top25
     tickers = [c["ticker"] for c in coins]
     names   = {c["ticker"]: c["name"] for c in coins}
@@ -280,7 +277,7 @@ if __name__ == "__main__":
 
     # 2. Download historical data via yfinance
     print("[ 2/4 ] Mengunduh data historis 2 tahun (yfinance)...")
-    mu, cov, valid_tickers = load_returns(tickers, period="2y")
+    mu, cov, valid_tickers = load_returns(tickers, period="3y")
     valid_names = [names.get(t, t) for t in valid_tickers]
     print(f"        Aset valid: {len(valid_tickers)} dari {len(tickers)}")
     print(f"        Tickers   : {', '.join(valid_tickers)}")
@@ -292,7 +289,7 @@ if __name__ == "__main__":
         rf          = RF,
         lam         = LAMBDA,
         n_particles = 100,
-        n_iter      = 3000,
+        n_iter      = 300,
         verbose     = VERBOSE
     )
     print(f"        Konvergen pada score: {best_score:.4f}")
